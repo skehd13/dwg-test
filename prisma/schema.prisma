@@ -1,0 +1,95 @@
+// This is your Prisma schema file
+
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  loginId   String   @db.VarChar(255)
+  loginPw   String
+  name      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model List {
+  id        Int     @id
+  name      String
+  enName    String
+  CASNo     String
+  oldName   String
+}
+
+model modbusDevice {
+  id          Int       @id @default(autoincrement())
+  name        String
+  deviceType  Int
+  ipAddress   String ?
+  port        Int? 
+  comPort     String?
+  baudRate    Int?
+  parity      String? 
+  dataBit     Int?
+  stopBit     Int?
+  slaveId     Int?
+  groups      modbusGroup[]
+}
+
+model modbusGroup {
+  id          Int       @id @default(autoincrement())
+  name        String
+  start       Int
+  length      Int
+  delay       Int
+  type        Int
+  targetName  String
+  device_id	  Int
+  device      modbusDevice? @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  targets     modbusTarget[]
+}
+
+model modbusTarget {
+  id          Int       @id @default(autoincrement())
+  position	  Int
+  name	      String
+  group_id	  Int
+  group       modbusGroup? @relation(fields: [group_id	], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+model bacnetDevice {
+  id                        Int         @id @default(autoincrement())
+  name	                    String
+  sender	                  String
+  object_name               String
+  vendor_name               String
+  apdu_timeout              Int
+  max_apdu_length_accepted  Int
+  object_type               String 
+  deviceId	                Int
+  object_identifier	        String
+}
+
+model bacnetObject {
+  id                    Int         @id @default(autoincrement())
+  object_identifier	    String
+  description	          String
+  event_state	          String
+  object_name	          String
+  object_type	          String
+  out_of_service	      String
+  reliability	          String
+  units	                String
+  device_id	            String
+  enabled               Int
+}
